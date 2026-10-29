@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BugLens: code review and bug detection with LLMs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='17' cy='17' rx='8' ry='11' fill='%23E0307F'/%3E%3Cellipse cx='15' cy='15' rx='8' ry='11' fill='%232456E8' fill-opacity='.85'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+        <g class="logo-pink">
+          <ellipse cx="35" cy="35" rx="13" ry="18"/>
+          <path d="M22 28 L10 22 M22 38 L9 40 M22 46 L12 55 M48 28 L58 21 M48 38 L60 39 M48 46 L57 55" stroke-width="4" stroke-linecap="round"/>
+        </g>
+        <g class="logo-blue">
+          <ellipse cx="31" cy="31" rx="13" ry="18"/>
+          <circle cx="31" cy="12" r="6"/>
+        </g>
+        <circle cx="44" cy="44" r="11" class="logo-lens"/>
+        <path d="M52 52 L60 60" class="logo-handle"/>
+      </svg>
+      <div>
+        <h1>BugLens</h1>
+        <p class="tagline">Intelligent code review and bug detection with LLMs</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" class="tab" data-view="scan" aria-selected="true">Scan code</button>
+      <button role="tab" class="tab" data-view="lab" aria-selected="false">Model lab</button>
+      <button role="tab" class="tab" data-view="about" aria-selected="false">How it works</button>
+    </nav>
+    <div class="engines" id="engines" aria-live="polite"></div>
+  </header>
+
+  <main>
+    <!-- ============================================================ SCAN -->
+    <section id="view-scan" class="view" role="tabpanel">
+      <ol class="rail" id="rail" aria-label="Pipeline progress">
+        <li class="station" data-step="code"><span class="dot"></span><span class="st-name">Code in</span><span class="st-val">waiting</span></li>
+        <li class="station" data-step="tokens"><span class="dot"></span><span class="st-name">Tokenizer</span><span class="st-val">waiting</span></li>
+        <li class="station" data-step="encoder"><span class="dot"></span><span class="st-name">Fine-tuned encoder</span><span class="st-val">waiting</span></li>
+        <li class="station" data-step="verdict"><span class="dot"></span><span class="st-name">Bug verdict</span><span class="st-val">waiting</span></li>
+        <li class="station" data-step="review"><span class="dot"></span><span class="st-name">Gemini review</span><span class="st-val">waiting</span></li>
+      </ol>
+
+      <div class="scan-grid">
+        <div class="col-left">
+          <div class="drawer">
+            <div class="drawer-head">
+              <h2>Specimen drawer</h2>
+              <div class="seg small" id="langFilter" role="group" aria-label="Filter samples by language">
+                <button data-lang="all" aria-pressed="true">All</button>
+                <button data-lang="python" aria-pressed="false">Python</button>
+                <button data-lang="c" aria-pressed="false">C</button>
+              </div>
+            </div>
+            <div class="drawer-row" id="drawer"></div>
+          </div>
+
+          <div class="editor-card">
+            <div class="editor-bar">
+              <label class="field">Language
+                <select id="language" autocomplete="off">
+                  <option value="python">Python</option>
+                  <option value="c">C / C++</option>
+                  <option value="java">Java</option>
+                  <option value="javascript">JavaScript</option>
+                </select>
+              </label>
+              <div class="seg" id="modelPick" role="group" aria-label="Detector model">
+                <button data-model="codebert" aria-pressed="true">CodeBERT</button>
+                <button data-model="codet5" aria-pressed="false">CodeT5</button>
+                <button data-model="both" aria-pressed="false">Both</button>
+              </div>
+              <button class="toggle" id="heatToggle" aria-pressed="false" disabled title="Run a scan to see what the model attended to">Attention heatmap</button>
+            </div>
+            <div class="editor" id="editor">
+              <div class="gutter" id="gutter" aria-hidden="true"></div>
+              <div class="code-wrap">
+                <pre class="hl" id="highlight" aria-hidden="true"></pre>
+                <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Code to review" placeholder="Paste a function here, or pick a specimen above."></textarea>
+              </div>
+            </div>
+            <div class="editor-foot">
+              <label class="check"><input type="checkbox" id="alwaysReview"> Ask Gemini even when the detector says clean</label>
+              <span class="kbd-hint">Ctrl + Enter</span>
+              <button class="btn-scan" id="scanBtn">Scan code</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <div class="verdict-card" id="verdict">
+            <div class="empty">
+              <p class="empty-title">Nothing scanned yet</p>
+              <p>Pick a specimen from the drawer or paste your own function, then press Scan code.</p>
+            </div>
+          </div>
+          <div class="review" id="review"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ LAB -->
+    <section id="view-lab" class="view" role="tabpanel" hidden>
+      <div id="lab"></div>
+    </section>
+
+    <!-- ============================================================ ABOUT -->
+    <section id="view-about" class="view about" role="tabpanel" hidden>
+      <div class="about-hero">
+        <h2>Detect with a specialist, explain with a generalist</h2>
+        <p>Small fine-tuned code models are fast and measurable at spotting defects, but they only output a number. Large generative models explain well, but are slow and hard to evaluate. BugLens chains the two.</p>
+      </div>
+      <ol class="about-steps">
+        <li>
+          <h3>Tokenize</h3>
+          <p>The function is split into sub-word tokens with the model's own BPE tokenizer and cut to 400 tokens, the same length used by the CodeXGLUE baseline.</p>
+        </li>
+        <li>
+          <h3>Encode and classify</h3>
+          <p>CodeBERT (125M parameters, encoder) or the CodeT5-small encoder reads the tokens. A linear layer on top outputs one number, and sigmoid turns it into the probability of a defect.</p>
+        </li>
+        <li>
+          <h3>Decide</h3>
+          <p>Probability of 0.5 or more means buggy. The attention of the last layer shows which tokens the model looked at most.</p>
+        </li>
+        <li>
+          <h3>Explain and fix</h3>
+          <p>Flagged code goes to Gemini with the detector's score as a hint. Gemini returns structured JSON: bug type, severity, line numbers, explanation and a corrected version.</p>
+        </li>
+      </ol>
+      <div class="about-grid">
+        <div class="about-card">
+          <h3>Dataset</h3>
+          <p>CodeXGLUE Defect Detection (Devign): 27,318 real C functions from FFmpeg and QEMU, labelled vulnerable or clean by security experts.</p>
+          <table class="facts">
+            <tr><td>Train</td><td>21,854</td></tr>
+            <tr><td>Validation</td><td>2,732</td></tr>
+            <tr><td>Test</td><td>2,732</td></tr>
+          </table>
+        </div>
+        <div class="about-card">
+          <h3>Training</h3>
+          <table class="facts">
+            <tr><td>Loss</td><td>Binary cross-entropy (with logits)</td></tr>
+            <tr><td>Optimizer</td><td>AdamW, weight decay 0.01</td></tr>
+            <tr><td>Schedule</td><td>Cosine with 10% warmup</td></tr>
+            <tr><td>Stopping</td><td>Best validation accuracy, patience 2</td></tr>
+            <tr><td>Hardware</td><td>Google Colab T4 GPU</td></tr>
+          </table>
+        </div>
+        <div class="about-card">
+          <h3>Cross-language probe</h3>
+          <p>The model only ever sees C during training. To test transfer, 18 hand-written bug and fix pairs (13 Python, 5 C) are scored after training. The same pairs fill the specimen drawer.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

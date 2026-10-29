@@ -1,0 +1,218 @@
+[
+ {
+  "id": "py-binary-search:buggy",
+  "language": "python",
+  "func": "def binary_search(arr, target):\n    lo, hi = 0, len(arr) - 1\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1\n",
+  "target": 1
+ },
+ {
+  "id": "py-binary-search:fixed",
+  "language": "python",
+  "func": "def binary_search(arr, target):\n    lo, hi = 0, len(arr) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1\n",
+  "target": 0
+ },
+ {
+  "id": "py-mutable-default:buggy",
+  "language": "python",
+  "func": "def add_item(item, bucket=[]):\n    bucket.append(item)\n    return bucket\n",
+  "target": 1
+ },
+ {
+  "id": "py-mutable-default:fixed",
+  "language": "python",
+  "func": "def add_item(item, bucket=None):\n    if bucket is None:\n        bucket = []\n    bucket.append(item)\n    return bucket\n",
+  "target": 0
+ },
+ {
+  "id": "py-average:buggy",
+  "language": "python",
+  "func": "def average(nums):\n    return sum(nums) / len(nums)\n",
+  "target": 1
+ },
+ {
+  "id": "py-average:fixed",
+  "language": "python",
+  "func": "def average(nums):\n    if not nums:\n        return 0.0\n    return sum(nums) / len(nums)\n",
+  "target": 0
+ },
+ {
+  "id": "py-remove-while-iterating:buggy",
+  "language": "python",
+  "func": "def remove_negatives(nums):\n    for n in nums:\n        if n < 0:\n            nums.remove(n)\n    return nums\n",
+  "target": 1
+ },
+ {
+  "id": "py-remove-while-iterating:fixed",
+  "language": "python",
+  "func": "def remove_negatives(nums):\n    return [n for n in nums if n >= 0]\n",
+  "target": 0
+ },
+ {
+  "id": "py-is-compare:buggy",
+  "language": "python",
+  "func": "def is_admin(role):\n    return role is \"admin\"\n",
+  "target": 1
+ },
+ {
+  "id": "py-is-compare:fixed",
+  "language": "python",
+  "func": "def is_admin(role):\n    return role == \"admin\"\n",
+  "target": 0
+ },
+ {
+  "id": "py-file-leak:buggy",
+  "language": "python",
+  "func": "def read_config(path):\n    f = open(path)\n    data = f.read()\n    if not data:\n        return {}\n    f.close()\n    return json.loads(data)\n",
+  "target": 1
+ },
+ {
+  "id": "py-file-leak:fixed",
+  "language": "python",
+  "func": "def read_config(path):\n    with open(path) as f:\n        data = f.read()\n    if not data:\n        return {}\n    return json.loads(data)\n",
+  "target": 0
+ },
+ {
+  "id": "py-sql-injection:buggy",
+  "language": "python",
+  "func": "def get_user(cursor, username):\n    query = f\"SELECT * FROM users WHERE name = '{username}'\"\n    cursor.execute(query)\n    return cursor.fetchone()\n",
+  "target": 1
+ },
+ {
+  "id": "py-sql-injection:fixed",
+  "language": "python",
+  "func": "def get_user(cursor, username):\n    query = \"SELECT * FROM users WHERE name = %s\"\n    cursor.execute(query, (username,))\n    return cursor.fetchone()\n",
+  "target": 0
+ },
+ {
+  "id": "py-pairwise:buggy",
+  "language": "python",
+  "func": "def pairwise_sums(nums):\n    result = []\n    for i in range(len(nums)):\n        result.append(nums[i] + nums[i + 1])\n    return result\n",
+  "target": 1
+ },
+ {
+  "id": "py-pairwise:fixed",
+  "language": "python",
+  "func": "def pairwise_sums(nums):\n    result = []\n    for i in range(len(nums) - 1):\n        result.append(nums[i] + nums[i + 1])\n    return result\n",
+  "target": 0
+ },
+ {
+  "id": "py-floor-division:buggy",
+  "language": "python",
+  "func": "def to_fahrenheit(celsius):\n    return celsius * 9 // 5 + 32\n",
+  "target": 1
+ },
+ {
+  "id": "py-floor-division:fixed",
+  "language": "python",
+  "func": "def to_fahrenheit(celsius):\n    return celsius * 9 / 5 + 32\n",
+  "target": 0
+ },
+ {
+  "id": "py-missing-return:buggy",
+  "language": "python",
+  "func": "def factorial(n):\n    if n == 0:\n        return 1\n    n * factorial(n - 1)\n",
+  "target": 1
+ },
+ {
+  "id": "py-missing-return:fixed",
+  "language": "python",
+  "func": "def factorial(n):\n    if n == 0:\n        return 1\n    return n * factorial(n - 1)\n",
+  "target": 0
+ },
+ {
+  "id": "py-bare-except:buggy",
+  "language": "python",
+  "func": "def safe_int(value):\n    try:\n        return int(value)\n    except:\n        pass\n",
+  "target": 1
+ },
+ {
+  "id": "py-bare-except:fixed",
+  "language": "python",
+  "func": "def safe_int(value, default=0):\n    try:\n        return int(value)\n    except (TypeError, ValueError):\n        return default\n",
+  "target": 0
+ },
+ {
+  "id": "py-find-max:buggy",
+  "language": "python",
+  "func": "def find_max(nums):\n    best = 0\n    for n in nums:\n        if n > best:\n            best = n\n    return best\n",
+  "target": 1
+ },
+ {
+  "id": "py-find-max:fixed",
+  "language": "python",
+  "func": "def find_max(nums):\n    best = nums[0]\n    for n in nums[1:]:\n        if n > best:\n            best = n\n    return best\n",
+  "target": 0
+ },
+ {
+  "id": "py-grid-alias:buggy",
+  "language": "python",
+  "func": "def make_grid(rows, cols):\n    return [[0] * cols] * rows\n",
+  "target": 1
+ },
+ {
+  "id": "py-grid-alias:fixed",
+  "language": "python",
+  "func": "def make_grid(rows, cols):\n    return [[0] * cols for _ in range(rows)]\n",
+  "target": 0
+ },
+ {
+  "id": "c-strcpy-overflow:buggy",
+  "language": "c",
+  "func": "void copy_name(char *dst, const char *src) {\n    char buf[16];\n    strcpy(buf, src);\n    strcpy(dst, buf);\n}\n",
+  "target": 1
+ },
+ {
+  "id": "c-strcpy-overflow:fixed",
+  "language": "c",
+  "func": "void copy_name(char *dst, size_t dst_size, const char *src) {\n    char buf[16];\n    snprintf(buf, sizeof(buf), \"%s\", src);\n    snprintf(dst, dst_size, \"%s\", buf);\n}\n",
+  "target": 0
+ },
+ {
+  "id": "c-use-after-free:buggy",
+  "language": "c",
+  "func": "int process(struct node *n) {\n    int val = n->value;\n    free(n);\n    if (n->next != NULL)\n        return val + n->next->value;\n    return val;\n}\n",
+  "target": 1
+ },
+ {
+  "id": "c-use-after-free:fixed",
+  "language": "c",
+  "func": "int process(struct node *n) {\n    int val = n->value;\n    struct node *next = n->next;\n    free(n);\n    if (next != NULL)\n        return val + next->value;\n    return val;\n}\n",
+  "target": 0
+ },
+ {
+  "id": "c-packet-length:buggy",
+  "language": "c",
+  "func": "static int read_header(const uint8_t *buf, int len, uint8_t *out) {\n    int size = buf[0];\n    memcpy(out, buf + 1, size);\n    return size;\n}\n",
+  "target": 1
+ },
+ {
+  "id": "c-packet-length:fixed",
+  "language": "c",
+  "func": "static int read_header(const uint8_t *buf, int len, uint8_t *out, int out_size) {\n    if (len < 1)\n        return -1;\n    int size = buf[0];\n    if (size > len - 1 || size > out_size)\n        return -1;\n    memcpy(out, buf + 1, size);\n    return size;\n}\n",
+  "target": 0
+ },
+ {
+  "id": "c-malloc-null:buggy",
+  "language": "c",
+  "func": "char *dup_string(const char *s) {\n    char *copy = malloc(strlen(s) + 1);\n    strcpy(copy, s);\n    return copy;\n}\n",
+  "target": 1
+ },
+ {
+  "id": "c-malloc-null:fixed",
+  "language": "c",
+  "func": "char *dup_string(const char *s) {\n    char *copy = malloc(strlen(s) + 1);\n    if (copy == NULL)\n        return NULL;\n    strcpy(copy, s);\n    return copy;\n}\n",
+  "target": 0
+ },
+ {
+  "id": "c-alloc-overflow:buggy",
+  "language": "c",
+  "func": "int *alloc_table(int count) {\n    int *table = malloc(count * sizeof(int));\n    for (int i = 0; i < count; i++)\n        table[i] = 0;\n    return table;\n}\n",
+  "target": 1
+ },
+ {
+  "id": "c-alloc-overflow:fixed",
+  "language": "c",
+  "func": "int *alloc_table(int count) {\n    if (count <= 0 || (size_t)count > SIZE_MAX / sizeof(int))\n        return NULL;\n    int *table = calloc((size_t)count, sizeof(int));\n    return table;\n}\n",
+  "target": 0
+ }
+]
